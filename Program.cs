@@ -4,44 +4,40 @@ using System.Threading;
 
 class Program
 {
+    // Shared variable used by all threads
+    static int counter = 0;
+
     static void Main()
     {
-        // Create a list to store our threads
+        int numberOfThreads = 4;
+        int incrementsPerThread = 100000;
+
         List<Thread> threads = new List<Thread>();
 
-        // Create 3 threads
-        for (int i = 1; i <= 3; i++)
+        // Create 4 threads
+        for (int i = 0; i < numberOfThreads; i++)
         {
-            int threadNumber = i;
-
-            Thread thread = new Thread(() => CountNumbers(threadNumber));
+            Thread thread = new Thread(() =>
+            {
+                for (int j = 0; j < incrementsPerThread; j++)
+                {
+                    counter++;
+                }
+            });
 
             threads.Add(thread);
             thread.Start();
         }
 
-        // Main thread waits for all 3 threads to finish
+        // Wait for all threads to finish
         foreach (Thread thread in threads)
         {
             thread.Join();
         }
 
-        Console.WriteLine("All threads have finished.");
-    }
+        int expected = numberOfThreads * incrementsPerThread;
 
-    static void CountNumbers(int threadNumber)
-    {
-        Random random = new Random();
-
-        for (int i = 1; i <= 10; i++)
-        {
-            Console.WriteLine(
-                $"Worker {threadNumber} - Thread ID: " +
-                $"{Thread.CurrentThread.ManagedThreadId} - Number: {i}"
-            );
-
-            // Wait a random amount of time
-            Thread.Sleep(random.Next(100, 500));
-        }
+        Console.WriteLine($"Expected result: {expected}");
+        Console.WriteLine($"Actual result:   {counter}");
     }
 }
